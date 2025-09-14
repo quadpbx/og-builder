@@ -1,0 +1,15 @@
+{
+    "name": "quadpbx/packager",
+    "description": "Build a tarball",
+    "type": "project",
+    "license": "AGPL-3.0-only",
+    "authors": [
+        {
+            "name": "Rob Thomas",
+            "email": "xrobau@gmail.com"
+        }
+    ],
+    "require": {
+        "guzzlehttp/guzzle": "^7.9"
+    }
+}

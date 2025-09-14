@@ -1,0 +1,11 @@
+Package: quadpbx-og
+Version: __VERSION__
+Architecture: all
+Section: comm
+Priority: optional
+Maintainer: Rob Thomas <xrobau@gmail.com>
+Depends: apache2, sudo, postfix, rsync, php__PHPVER__-mysql, php__PHPVER__-sqlite3, php__PHPVER__-yaml, mariadb-client, mariadb-server
+Homepage: https://quadpbx.com
+Source: quadpbx-builder
+Description: Bootstrap control file for QuadPBX OG
+ This is to help get the ball rolling
