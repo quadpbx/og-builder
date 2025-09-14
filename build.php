@@ -16,6 +16,7 @@ $pkgdest = "$buildroot/opt/quadpbx/modules";
 $patchdest = "$buildroot/opt/quadpbx/patches";
 $webdest = "/var/www/html/quadpbx";
 
+// Auto-push when being built by xrobau
 $repo = false;
 
 $knownpatches=glob(__DIR__."/patches/*.patch");
@@ -41,7 +42,7 @@ if (!file_exists($outfile)) {
     $c = new Client();
     $req = $c->get($xmlsrc);
     file_put_contents($outfile, $req->getBody());
-    print "loaded\n";
+    print "loaded /tmp/foo from mirror, restart and try again\n";
     exit;
 }
 
@@ -86,12 +87,13 @@ foreach ($knownpatches as $src) {
 	system($cmd);
 }
 
-$cmd = "dpkg -b $buildroot /usr/local/repo/repo-tools/incoming; cd /usr/local/repo/repo-tools; make repo";
 if ($repo) {
+	$cmd = "dpkg -b $buildroot /usr/local/repo/repo-tools/incoming; cd /usr/local/repo/repo-tools; make repo";
 	print "Now building using:\n  $cmd\n";
 	system($cmd);
 } else {
-	print "Now do this to build the deb from $buildroot\n$cmd; cd -\n";
+	$cmd = "dpkg -b $buildroot /tmp";
+	print "Now do this to build the deb from $buildroot\n$cmd; dpkg -i /tmp/quadpbx-og_".$buildver."_all.deb\n";
 }
 
 function processPackage(SimpleXMLElement $m, string $pkgdest, string $name, bool $linkcurrent = false): string
