@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "POSTINST Script here called $0"
+set
+
+
+

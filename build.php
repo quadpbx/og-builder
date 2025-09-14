@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 
 use GuzzleHttp\Client;
@@ -8,11 +9,17 @@ $srcvers = "17.0";
 $baseurl = "https://mirror.freepbx.org";
 $xmlsrc = "$baseurl/all-" . $srcvers . ".xml";
 $stagingdir = __DIR__ . "/staging/$srcvers";
-$buildver = "2509.03-1";
+$buildver = "2509.04-3";
 $buildroot = "/usr/local/data/quadpbx-deb/quadpbx-$buildver";
 
 $pkgdest = "$buildroot/opt/quadpbx/modules";
+$patchdest = "$buildroot/opt/quadpbx/patches";
 $webdest = "/var/www/html/quadpbx";
+
+$repo = false;
+
+$knownpatches=glob(__DIR__."/patches/*.patch");
+$debscripts=glob(__DIR__."/scripts/*");
 
 
 if (!is_dir($stagingdir)) {
@@ -23,6 +30,11 @@ if (is_dir($buildroot)) {
 }
 mkdir($buildroot, 0777, true);
 createControlFile($buildroot, $buildver);
+foreach ($debscripts as $s) {
+	$dest = "$buildroot/DEBIAN/".basename($s);
+	copy($s, $dest);
+	chmod($dest, 0755);
+}
 
 $outfile = "/tmp/foo.xml";
 if (!file_exists($outfile)) {
@@ -51,16 +63,38 @@ foreach ($used as $name => $x) {
 
 print "Starting with framework\n";
 $fw = $used['framework'];
-processPackage($fw, $pkgdest, "framework", $webdest, "amp_conf/htdocs");
+$fwdir = processPackage($fw, $pkgdest, "framework", true);
+$moddests = str_replace("//", "/", "$fwdir/amp_conf/htdocs/admin/modules/");
+mkdir($moddests, 0777, true);
 unset($used['framework']);
 foreach ($used as $name => $x) {
-    processPackage($x, $pkgdest, $name);
+    $pdir = processPackage($x, $pkgdest, $name);
+    chdir($moddests);
+    $modsrc = "../../../../../../$name/".basename($pdir);
+    symlink($modsrc, $name);
 }
-print "Now do this to build the deb from $buildroot\n";
-print "dpkg -b $buildroot /usr/local/repo/repo-tools/incoming\n";
-exit;
 
-function processPackage(SimpleXMLElement $m, string $pkgdest, string $name, ?string $linkdest = null, ?string $subdest = null)
+mkdir($patchdest, 0777, true);
+
+chdir($buildroot);
+foreach ($knownpatches as $src) {
+	$fn = basename($src);
+	$dest = "$patchdest/$fn";
+	copy($src, $dest);
+	$cmd = "patch -p0 < $dest";
+	print "$cmd\n";
+	system($cmd);
+}
+
+$cmd = "dpkg -b $buildroot /usr/local/repo/repo-tools/incoming; cd /usr/local/repo/repo-tools; make repo";
+if ($repo) {
+	print "Now building using:\n  $cmd\n";
+	system($cmd);
+} else {
+	print "Now do this to build the deb from $buildroot\n$cmd; cd -\n";
+}
+
+function processPackage(SimpleXMLElement $m, string $pkgdest, string $name, bool $linkcurrent = false): string
 {
     global $buildroot;
     $moddir = $pkgdest . "/$name";
@@ -69,22 +103,11 @@ function processPackage(SimpleXMLElement $m, string $pkgdest, string $name, ?str
     $destdir = "$moddir/$vstr/";
     print "Now thinking about $name going to $destdir\n";
     extractTarball($m->destfile, $destdir, [$name]);
-    // $buildroot/opt/quadpbx/modules/$name
-    chdir($moddir);
-    symlink("./$vstr", "./current");
-    if ($linkdest) {
-        $parent = dirname(str_replace("//", "/", "$buildroot/$linkdest"));
-        print "I want to go to $parent\n";
-        mkdir($parent, 0777, true);
-        chdir($parent);
-        $rel = "../../../opt/quadpbx/modules/$name/current";
-        if ($subdest) {
-            $rel .= "/$subdest";
-        }
-        $sname = basename($linkdest);
-        symlink($rel, $sname);
-        system("ls -al $rel");
+    if ($linkcurrent) {
+        chdir($moddir);
+        symlink("./$vstr", "./current");
     }
+    return $destdir;
 }
 
 function downloadModule(\SimpleXMLElement $x)
@@ -146,7 +169,7 @@ function createControlFile(string $buildroot, string $buildver)
     $debdir = $buildroot . "/DEBIAN";
     mkdir($debdir, 0777, true);
     $control = file_get_contents(__DIR__ . "/control");
-    $output = str_replace(["__VERSION__", "__PHPVER__"], [$buildver, "8.3"], $control);
+    $output = str_replace(["__VERSION__", "__PHPVER__"], [$buildver, "8.4"], $control);
     file_put_contents($debdir . "/control", $output);
 }
 

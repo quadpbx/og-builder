@@ -1,0 +1,24 @@
+--- opt/quadpbx/modules/framework/current/amp_conf/htocs/admin/config.php.orig	2025-09-14 18:04:00.607685068 +1000
++++ opt/quadpbx/modules/framework/current/amp_conf/htdocs/admin/config.php	2025-09-14 18:05:04.356400674 +1000
+@@ -220,18 +220,19 @@
+ 	exit();
+ }
+ 
++$serversoftware = $_SERVER['SERVER_SOFTWARE'] ?? 'noserver';
+ 
+ if (!$quietmode) {
+ 	$modulef = module_functions::create();
+ 	$modulef->run_notification_checks();
+ 	$nt = notifications::create();
+-	if ( !isset($_SERVER['HTACCESS']) && preg_match("/apache/i", $_SERVER['SERVER_SOFTWARE']) ) {
++	if ( !isset($_SERVER['HTACCESS']) && preg_match("/apache/i", $serversoftware) ) {
+ 		// No .htaccess support
+ 		if(!$nt->exists('framework', 'htaccess')) {
+ 			$nt->add_security('framework', 'htaccess', _('.htaccess files are disabled on this webserver. Please enable them'),
+ 				sprintf(_("To protect the integrity of your server, you must allow overrides in your webserver's configuration file for the User Control Panel. For more information see: %s"), '<a href="https://sangomakb.atlassian.net/wiki/spaces/PG/pages/26673359/PBX+GUI+-+Webserver+Overrides">https://sangomakb.atlassian.net/wiki/spaces/PG/pages/26673359/PBX+GUI+-+Webserver+Overrides</a>'),"https://sangomakb.atlassian.net/wiki/spaces/PG/pages/26673359/PBX+GUI+-+Webserver+Overrides");
+ 		}
+-	} elseif(!preg_match("/apache/i", $_SERVER['SERVER_SOFTWARE'])) {
++	} elseif(!preg_match("/apache/i", $serversoftware)) {
+ 		$sql = "SELECT value FROM admin WHERE variable = 'htaccess'";
+ 		$sth = FreePBX::Database()->prepare($sql);
+ 		$sth->execute();

@@ -1,0 +1,20 @@
+--- opt/quadpbx/modules/framework/current/amp_conf/htdocs/admin/libraries/less/Less.php.dep	2025-09-14 18:07:43.370278991 +1000
++++ opt/quadpbx/modules/framework/current/amp_conf/htdocs/admin/libraries/less/Less.php	2025-09-14 18:08:32.102851409 +1000
+@@ -9320,7 +9320,7 @@
+ 	 * @param Less_FileInfo|string $currentFile The file
+ 	 * @param integer $code The exception code
+ 	 */
+-	public function __construct($message = null, Exception $previous = null, $index = null, $currentFile = null, $code = 0){
++	public function __construct($message = null, ?Exception $previous = null, $index = null, $currentFile = null, $code = 0){
+ 
+ 		if (PHP_VERSION_ID < 50300) {
+ 			$this->previous = $previous;
+@@ -9429,7 +9429,7 @@
+ 	 * @param Less_FileInfo|string $currentFile The file
+ 	 * @param integer $code The exception code
+ 	 */
+-	public function __construct($input, Exception $previous = null, $index = null, $currentFile = null, $code = 0){
++	public function __construct($input, ?Exception $previous = null, $index = null, $currentFile = null, $code = 0){
+ 
+ 		$this->message = 'ParseError: Unexpected input'; //default message
+ 

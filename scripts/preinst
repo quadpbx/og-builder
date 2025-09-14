@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo "PREINST Script here called $0"
+set
+
+

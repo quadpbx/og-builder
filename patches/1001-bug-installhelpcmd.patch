@@ -1,0 +1,9 @@
+--- opt/quadpbx/modules/framework/current/installlib/installhelpcommand.class.php	2025-09-14 17:24:24.000000000 +1000
++++ opt/quadpbx/modules/framework/current/installlib/fixed-installhelpcommand.class.php	2025-09-14 17:26:58.706187578 +1000
+@@ -39,5 +39,6 @@
+ 			'raw' => $input->getOption('raw'),
+ 		));
+ 		$this->command = null;
++		return 0;
+ 	}
+ }
