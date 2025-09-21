@@ -4,7 +4,7 @@ Architecture: all
 Section: comm
 Priority: optional
 Maintainer: Rob Thomas <xrobau@gmail.com>
-Depends: apache2, sudo, postfix, rsync, php__PHPVER__-mysql, php__PHPVER__-xml, php__PHPVER__-sqlite3, php__PHPVER__-yaml, mariadb-client, mariadb-server, asterisk ( >= 22.5 ), nodejs ( >= 20 ), libapache2-mod-php__PHPVER__
+Depends: apache2, sudo, postfix, rsync, php__PHPVER__-mysql, php__PHPVER__-xml, php__PHPVER__-sqlite3, php__PHPVER__-yaml, php__PHPVER__-ldap,  mariadb-client, mariadb-server, asterisk ( >= 22.5 ), nodejs ( >= 20 ), libapache2-mod-php__PHPVER__
 Homepage: https://quadpbx.com
 Source: quadpbx-builder
 Description: Bootstrap control file for QuadPBX OG
