@@ -1,0 +1,120 @@
+#!/usr/bin/env php
+<?php
+
+$conffile = "/opt/quadpbx/conf/quadpbx-conf.json";
+
+$updateneeded = false;
+
+$defconf = [
+    "user" => "asterisk", // File ownership
+    "group" => "www-data", // File ownership
+    "dbhost" => "localhost",
+    "granthosts" => "localhost", // Can be an array if needed
+    "dbuser" => "asterisk",
+    "dbpass" => null,
+    "dbname" => "asterisk",
+    "cdrdbname" => "asteriskcdrdb",
+    "webroot" => "/var/www/html",
+    "mgrpass" => null,
+    "dbrootuser" => "root",
+    "dbrootpass" => "",
+    "dbnames" => ["asterisk", "asteriskcdrdb"],
+];
+
+if (!file_exists($conffile)) {
+    $updateneeded = true;
+    $conf = $defconf;
+} else {
+    $conf = json_decode(file_get_contents($conffile), true);
+}
+
+if (empty($conf['dbpass'])) {
+    $updateneeded = true;
+    $conf['dbpass'] = guidv4();
+}
+
+if (empty($conf['mgrpass'])) {
+    $updateneeded = true;
+    $conf['mgrpass'] = guidv4();
+}
+
+foreach ($defconf as $k => $v) {
+    if (!isset($conf[$k])) {
+        $conf[$k] = $v;
+        $updateneeded = true;
+    }
+}
+
+if ($updateneeded) {
+    file_put_contents($conffile, json_encode($conf, \JSON_PRETTY_PRINT) . "\n");
+}
+
+createDbs($conf);
+
+checkDbAccess($conf);
+
+// Found on 'uuidgenerator.net', and this is good enough for non-critical things
+function guidv4(): string
+{
+    // Generate 16 bytes (128 bits) of random data or use the data passed into the function.
+    $data = random_bytes(16);
+    assert(strlen($data) == 16);
+    // Set version to 0100
+    $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
+    // Set bits 6-7 to 10
+    $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
+    // Output the 36 character UUID.
+    return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+}
+
+function createDbs($conf)
+{
+    $dsn = "mysql:host=" . $conf["dbhost"];
+    $pdo = new \PDO($dsn, $conf['dbrootuser'], $conf['dbrootpass'], [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
+    foreach ($conf['dbnames'] as $d) {
+        try {
+            $pdo->exec("use $d");
+        } catch (\Exception $e) {
+            $c = $e->getCode();
+            if ($c === "42000") {
+                // DB does not exist
+                createDb($d, $pdo, $conf);
+            } else {
+                throw $e;
+            }
+        }
+    }
+}
+
+function checkDbAccess($conf)
+{
+    $dsn = "mysql:host=" . $conf["dbhost"];
+    $pdo = new \PDO($dsn, $conf['dbuser'], $conf['dbpass'], [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
+    foreach ($conf['dbnames'] as $d) {
+        try {
+            $pdo->exec("use $d");
+        } catch (\Exception $e) {
+            print "Error with DB access when trying to connect to $d as " . $conf['dbuser'] . "\n";
+            print $e->getMessage() . "\n";
+            exit(9);
+        }
+    }
+}
+
+
+function createDb(string $dbname, \PDO $pdo, array $conf)
+{
+    $dbuser = $conf['dbuser'];
+    $dbpass = $conf['dbpass'];
+    $sql = "create database if not exists $dbname";
+    $pdo->exec($sql);
+    $granthosts = $conf['granthosts'];
+    if (!is_array($granthosts)) {
+        $granthosts = [$granthosts];
+    }
+    foreach ($granthosts as $i) {
+        $grant = "GRANT ALL PRIVILEGES ON $dbname.* TO '$dbuser'@'$i' identified by '$dbpass'";
+        print "$grant\n";
+        $pdo->exec($grant);
+    }
+}

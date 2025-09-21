@@ -1,0 +1,39 @@
+#!/usr/bin/env php
+<?php
+
+$conffile = "/opt/quadpbx/conf/quadpbx-conf.json";
+
+$conf = json_decode(file_get_contents($conffile), true);
+
+$params = ["dbname", "cdrdbname", "dbhost", "dbuser", "dbpass", "user", "group", "webroot"];
+$cmd = "./install ";
+foreach ($params as $k) {
+    $cmd .= "--$k=" . $conf[$k] . " ";
+}
+
+$optparams = [
+    "astetcdir",
+    "astmoddir",
+    "astvarlibdir",
+    "astagidir",
+    "astspooldir",
+    "astrundir",
+    "astlogdir",
+    "ampbin",
+    "ampsbin",
+    "ampcgibin",
+    "ampplayback"
+];
+
+foreach ($optparams as $o) {
+    if (!empty($conf[$o])) {
+        $cmd .= "--$o=" . $conf[$o] . " ";
+    }
+}
+
+print "$cmd\n";
+exit;
+
+print "/opt/quadpbx/modules/framework/current# ./install --user=www-data --group=asterisk --rootdb -n\n";
+print json_encode($conf, \JSON_PRETTY_PRINT) . "\n";
+exit;

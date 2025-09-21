@@ -1,0 +1,6 @@
+#!/usr/bin/env php
+<?php
+
+echo "This is /usr/local/bin/quad\n";
+
+

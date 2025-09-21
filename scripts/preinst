@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "PREINST Script here called $0"
-set
+# Preinstall - make sure /opt/quadpbx/conf exists
+mkdir -p /opt/quadpbx/conf
 
 

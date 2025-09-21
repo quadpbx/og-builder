@@ -9,7 +9,7 @@ $srcvers = "17.0";
 $baseurl = "https://mirror.freepbx.org";
 $xmlsrc = "$baseurl/all-" . $srcvers . ".xml";
 $stagingdir = __DIR__ . "/staging/$srcvers";
-$buildver = "2509.04-3";
+$buildver = "2509.05-1";
 $buildroot = "/usr/local/data/quadpbx-deb/quadpbx-$buildver";
 
 $pkgdest = "$buildroot/opt/quadpbx/modules";
@@ -18,6 +18,9 @@ $webdest = "/var/www/html/quadpbx";
 
 // Auto-push when being built by xrobau
 $repo = false;
+
+// Used when testing builds
+$devtest = true;
 
 $knownpatches=glob(__DIR__."/patches/*.patch");
 $debscripts=glob(__DIR__."/scripts/*");
@@ -87,12 +90,32 @@ foreach ($knownpatches as $src) {
 	system($cmd);
 }
 
+// This should probably be a recursive directory iterator
+$filesdir = __DIR__.'/files/';
+$cmd = "rsync -av $filesdir $buildroot/";
+system($cmd);
+
+$hooks = glob(__DIR__."/hooks/*");
+chdir($buildroot);
+foreach ($hooks as $h) {
+    print "Running $h in $buildroot\n";
+    system($h);
+}
+
 if ($repo) {
 	$cmd = "dpkg -b $buildroot /usr/local/repo/repo-tools/incoming; cd /usr/local/repo/repo-tools; make repo";
 	print "Now building using:\n  $cmd\n";
 	system($cmd);
 } else {
-	$cmd = "dpkg -b $buildroot /tmp";
+    $outdir = "/tmp";
+	$cmd = "dpkg -b $buildroot $outdir";
+    $inscmd = "dpkg -i $outdir/quadpbx-og_".$buildver."_all.deb";
+    if ($devtest) {
+        print "Building using $cmd\n";
+	    system($cmd);
+        print "Now install the deb using $inscmd\n";
+        exit;
+    }
 	print "Now do this to build the deb from $buildroot\n$cmd; dpkg -i /tmp/quadpbx-og_".$buildver."_all.deb\n";
 }
 

@@ -1,7 +1,10 @@
 #!/bin/bash
 
 echo "POSTINST Script here called $0"
-set
 
+set -x
 
+cd /opt/quadpbx/bin
+/opt/quadpbx/bin/quadconf
+/opt/quadpbx/bin/quadinstall
 
