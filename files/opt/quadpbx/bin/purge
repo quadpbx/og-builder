@@ -1,0 +1,16 @@
+#!/usr/bin/env php
+<?php
+
+$conffile = "/opt/quadpbx/conf/quadpbx-conf.json";
+
+$conf = json_decode(file_get_contents($conffile), true);
+
+$dsn = "mysql:host=" . $conf["dbhost"];
+$pdo = new \PDO($dsn, $conf['dbrootuser'], $conf['dbrootpass'], [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
+foreach ($conf['dbnames'] as $d) {
+    $pdo->exec("drop database $d");
+}
+
+$rm = "rm -rf /etc/freepbx.conf /etc/amportal.conf " . $conf['webroot'] . "/*";
+echo "$rm\n";
+system($rm);

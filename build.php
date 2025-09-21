@@ -9,7 +9,7 @@ $srcvers = "17.0";
 $baseurl = "https://mirror.freepbx.org";
 $xmlsrc = "$baseurl/all-" . $srcvers . ".xml";
 $stagingdir = __DIR__ . "/staging/$srcvers";
-$buildver = "2509.05-1";
+$buildver = "2509.05-2";
 $buildroot = "/usr/local/data/quadpbx-deb/quadpbx-$buildver";
 
 $pkgdest = "$buildroot/opt/quadpbx/modules";
@@ -22,8 +22,8 @@ $repo = false;
 // Used when testing builds
 $devtest = true;
 
-$knownpatches=glob(__DIR__."/patches/*.patch");
-$debscripts=glob(__DIR__."/scripts/*");
+$knownpatches = glob(__DIR__ . "/patches/*.patch");
+$debscripts = glob(__DIR__ . "/scripts/*");
 
 
 if (!is_dir($stagingdir)) {
@@ -35,9 +35,9 @@ if (is_dir($buildroot)) {
 mkdir($buildroot, 0777, true);
 createControlFile($buildroot, $buildver);
 foreach ($debscripts as $s) {
-	$dest = "$buildroot/DEBIAN/".basename($s);
-	copy($s, $dest);
-	chmod($dest, 0755);
+    $dest = "$buildroot/DEBIAN/" . basename($s);
+    copy($s, $dest);
+    chmod($dest, 0755);
 }
 
 $outfile = "/tmp/foo.xml";
@@ -74,7 +74,7 @@ unset($used['framework']);
 foreach ($used as $name => $x) {
     $pdir = processPackage($x, $pkgdest, $name);
     chdir($moddests);
-    $modsrc = "../../../../../../$name/".basename($pdir);
+    $modsrc = "../../../../../../$name/" . basename($pdir);
     symlink($modsrc, $name);
 }
 
@@ -82,20 +82,20 @@ mkdir($patchdest, 0777, true);
 
 chdir($buildroot);
 foreach ($knownpatches as $src) {
-	$fn = basename($src);
-	$dest = "$patchdest/$fn";
-	copy($src, $dest);
-	$cmd = "patch -p0 < $dest";
-	print "$cmd\n";
-	system($cmd);
+    $fn = basename($src);
+    $dest = "$patchdest/$fn";
+    copy($src, $dest);
+    $cmd = "patch -p0 < $dest";
+    print "$cmd\n";
+    system($cmd);
 }
 
 // This should probably be a recursive directory iterator
-$filesdir = __DIR__.'/files/';
+$filesdir = __DIR__ . '/files/';
 $cmd = "rsync -av $filesdir $buildroot/";
 system($cmd);
 
-$hooks = glob(__DIR__."/hooks/*");
+$hooks = glob(__DIR__ . "/hooks/*");
 chdir($buildroot);
 foreach ($hooks as $h) {
     print "Running $h in $buildroot\n";
@@ -103,20 +103,20 @@ foreach ($hooks as $h) {
 }
 
 if ($repo) {
-	$cmd = "dpkg -b $buildroot /usr/local/repo/repo-tools/incoming; cd /usr/local/repo/repo-tools; make repo";
-	print "Now building using:\n  $cmd\n";
-	system($cmd);
+    $cmd = "dpkg -b $buildroot /usr/local/repo/repo-tools/incoming; cd /usr/local/repo/repo-tools; make repo";
+    print "Now building using:\n  $cmd\n";
+    system($cmd);
 } else {
     $outdir = "/tmp";
-	$cmd = "dpkg -b $buildroot $outdir";
-    $inscmd = "dpkg -i $outdir/quadpbx-og_".$buildver."_all.deb";
+    $cmd = "dpkg -b $buildroot $outdir";
+    $inscmd = "dpkg -i $outdir/quadpbx-og_" . $buildver . "_all.deb";
     if ($devtest) {
         print "Building using $cmd\n";
-	    system($cmd);
+        system($cmd);
         print "Now install the deb using $inscmd\n";
         exit;
     }
-	print "Now do this to build the deb from $buildroot\n$cmd; dpkg -i /tmp/quadpbx-og_".$buildver."_all.deb\n";
+    print "Now do this to build the deb from $buildroot\n$cmd; dpkg -i /tmp/quadpbx-og_" . $buildver . "_all.deb\n";
 }
 
 function processPackage(SimpleXMLElement $m, string $pkgdest, string $name, bool $linkcurrent = false): string

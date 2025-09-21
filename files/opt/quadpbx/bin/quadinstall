@@ -6,7 +6,7 @@ $conffile = "/opt/quadpbx/conf/quadpbx-conf.json";
 $conf = json_decode(file_get_contents($conffile), true);
 
 $params = ["dbname", "cdrdbname", "dbhost", "dbuser", "dbpass", "user", "group", "webroot"];
-$cmd = "./install ";
+$cmd = "./install --quiet ";
 foreach ($params as $k) {
     $cmd .= "--$k=" . $conf[$k] . " ";
 }
@@ -31,9 +31,7 @@ foreach ($optparams as $o) {
     }
 }
 
+$current = "/opt/quadpbx/modules/framework/current";
+chdir($current);
 print "$cmd\n";
-exit;
-
-print "/opt/quadpbx/modules/framework/current# ./install --user=www-data --group=asterisk --rootdb -n\n";
-print json_encode($conf, \JSON_PRETTY_PRINT) . "\n";
-exit;
+system($cmd);
