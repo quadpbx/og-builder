@@ -1,0 +1,14 @@
+--- opt/quadpbx/modules/framework/current/amp_conf/htdocs/admin/libraries/modulefunctions.class.php.orig	2025-10-02 13:55:49.310984030 +1000
++++ opt/quadpbx/modules/framework/current/amp_conf/htdocs/admin/libraries/modulefunctions.class.php	2025-10-02 13:57:00.455544176 +1000
+@@ -2388,9 +2388,11 @@
+ 		}
+ 
+ 		if (file_exists($xmlfile)) {
++			/* Disable modxml cache
+ 			if(isset($this->modXMLCache[$modulename]) && $cached) {
+ 				return $this->modXMLCache[$modulename];
+ 			}
++			 */
+ 			ini_set('user_agent','Wget/ (Red Hat modified)');
+ 			$data = file_get_contents($xmlfile);
+ 			try {

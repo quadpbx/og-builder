@@ -9,7 +9,7 @@ $srcvers = "17.0";
 $baseurl = "https://mirror.freepbx.org";
 $xmlsrc = "$baseurl/all-" . $srcvers . ".xml";
 $stagingdir = __DIR__ . "/staging/$srcvers";
-$buildver = "2509.05-2";
+$buildver = "2509.06-1";
 $buildroot = "/usr/local/data/quadpbx-deb/quadpbx-$buildver";
 
 $pkgdest = "$buildroot/opt/quadpbx/modules";
@@ -23,6 +23,7 @@ $repo = false;
 $devtest = true;
 
 $knownpatches = glob(__DIR__ . "/patches/*.patch");
+$patchscripts = glob(__DIR__ . "/patches/*.sh");
 $debscripts = glob(__DIR__ . "/scripts/*");
 
 
@@ -88,6 +89,16 @@ foreach ($knownpatches as $src) {
     $cmd = "patch -p0 < $dest";
     print "$cmd\n";
     system($cmd);
+}
+
+foreach ($patchscripts as $cmd) {
+    print "Running $cmd\n";
+    putenv("THISSCRIPT=$cmd");
+    $rescode = 0;
+    system($cmd, $rescode);
+    if ($rescode !== 0) {
+        exit($rescode);
+    }
 }
 
 // This should probably be a recursive directory iterator
