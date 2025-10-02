@@ -1,0 +1,11 @@
+--- opt/quadpbx/modules/framework/current/amp_conf/htdocs/admin/libraries/Console/Chown.class.php.orig	2025-10-03 07:44:58.616583696 +1000
++++ opt/quadpbx/modules/framework/current/amp_conf/htdocs/admin/libraries/Console/Chown.class.php	2025-10-02 17:24:55.140423211 +1000
+@@ -204,7 +204,7 @@
+ 			$skipped 	= array();
+ 			$Tstart 	= strtotime("now");
+ 			foreach($DIRS as $DIR){
+-				$bl 	= $this->systemSetRecursivePermissions($DIR, 0775, $ampowner, $ampowner, 'rdir');
++				$bl 	= $this->systemSetRecursivePermissions($DIR, 0775, $ampowner, $ampgroup, 'rdir');
+ 				$skipped= array_merge($skipped,$bl);
+ 			}
+ 
