@@ -1,0 +1,15 @@
+--- opt/quadpbx/modules/framework/current/amp_conf/htdocs/admin/libraries/xml2Array.class.php.orig	2025-09-21 16:26:40.192613983 +1000
++++ opt/quadpbx/modules/framework/current/amp_conf/htdocs/admin/libraries/xml2Array.class.php	2025-10-02 13:45:22.993587753 +1000
+@@ -38,10 +38,8 @@
+ 	function parse($strInputXML) {
+ 
+ 			$this->resParser = xml_parser_create ();
+-			xml_set_object($this->resParser,$this);
+-			xml_set_element_handler($this->resParser, "tagOpen", "tagClosed");
+-
+-			xml_set_character_data_handler($this->resParser, "tagData");
++			xml_set_element_handler($this->resParser, [$this, "tagOpen"], [$this, "tagClosed"]);
++			xml_set_character_data_handler($this->resParser, [$this, "tagData"]);
+ 
+ 			$this->strXmlData = xml_parse($this->resParser,$strInputXML );
+ 			if(!$this->strXmlData) {
