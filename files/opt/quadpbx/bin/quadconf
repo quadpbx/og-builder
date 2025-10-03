@@ -7,7 +7,7 @@ $updateneeded = false;
 
 $defconf = [
     "user" => "asterisk", // File ownership
-    "group" => "www-data", // File ownership
+    "group" => "asterisk", // File ownership
     "dbhost" => "localhost",
     "granthosts" => "localhost", // Can be an array if needed
     "dbuser" => "asterisk",
@@ -47,6 +47,12 @@ foreach ($defconf as $k => $v) {
 
 if ($updateneeded) {
     file_put_contents($conffile, json_encode($conf, \JSON_PRETTY_PRINT) . "\n");
+}
+
+// Remove index.html in webroot if it exists
+$i = $conf['webroot']."/index.html";
+if (file_exists($i)) {
+	unlink($i);
 }
 
 createDbs($conf);

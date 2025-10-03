@@ -9,7 +9,7 @@ $srcvers = "17.0";
 $baseurl = "https://mirror.freepbx.org";
 $xmlsrc = "$baseurl/all-" . $srcvers . ".xml";
 $stagingdir = __DIR__ . "/staging/$srcvers";
-$buildver = "2509.06-6";
+$buildver = "2509.06-8";
 $buildroot = "/usr/local/data/quadpbx-deb/quadpbx-$buildver";
 
 $pkgdest = "$buildroot/opt/quadpbx/modules";
@@ -54,7 +54,14 @@ $x = simplexml_load_file($outfile);
 $modules = $x->module[0];
 
 $used = [];
+$broken = [
+    "synologyabb" => "Does strange things, with old code",
+];
 foreach ($modules as $name => $element) {
+    if (!empty($broken[$name])) {
+        print "Skipping broken $name - " . $broken[$name] . "\n";
+        continue;
+    }
     if ($element->license == 'Commercial') {
         print "Skipping $name as it's commercial\n";
     } else {

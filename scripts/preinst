@@ -12,3 +12,16 @@ mkdir -p /var/spool/asterisk/incron
 chown asterisk:www-data /var/spool/asterisk/incron
 chmod 770 /var/spool/asterisk/incron
 
+# FINE I GIVE UP, RUN APACHE AS ASTERISK
+if grep -q www-data /etc/apache2/envvars; then
+	echo "Changing apache runas"
+	sed -i 's/www-data/asterisk/g' /etc/apache2/envvars
+	ARESTART=true
+fi
+
+chown -R asterisk:asterisk /var/run/apache2* /var/log/apache2* /var/lock/apache2*
+
+if [ "$ARESTART" ]; then
+	echo "Restarting apache with new runas user"
+	systemctl restart apache2
+fi
