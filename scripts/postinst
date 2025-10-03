@@ -11,5 +11,7 @@ fi
 
 cd /opt/quadpbx/bin
 /opt/quadpbx/bin/quadconf
+# Disable install for the moment
+#echo "Now run /opt/quadpbx/bin/quadinstall"
 /opt/quadpbx/bin/quadinstall
 

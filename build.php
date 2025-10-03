@@ -9,7 +9,7 @@ $srcvers = "17.0";
 $baseurl = "https://mirror.freepbx.org";
 $xmlsrc = "$baseurl/all-" . $srcvers . ".xml";
 $stagingdir = __DIR__ . "/staging/$srcvers";
-$buildver = "2509.06-8";
+$buildver = "2509.07-01";
 $buildroot = "/usr/local/data/quadpbx-deb/quadpbx-$buildver";
 
 $pkgdest = "$buildroot/opt/quadpbx/modules";
