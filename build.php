@@ -9,7 +9,7 @@ $srcvers = "17.0";
 $baseurl = "https://mirror.freepbx.org";
 $xmlsrc = "$baseurl/all-" . $srcvers . ".xml";
 $stagingdir = __DIR__ . "/staging/$srcvers";
-$buildver = "2509.06-1";
+$buildver = "2509.06-6";
 $buildroot = "/usr/local/data/quadpbx-deb/quadpbx-$buildver";
 
 $pkgdest = "$buildroot/opt/quadpbx/modules";
@@ -17,10 +17,10 @@ $patchdest = "$buildroot/opt/quadpbx/patches";
 $webdest = "/var/www/html/quadpbx";
 
 // Auto-push when being built by xrobau
-$repo = false;
+$repo = true;
 
 // Used when testing builds
-$devtest = true;
+$devtest = false;
 
 $knownpatches = glob(__DIR__ . "/patches/*.patch");
 $patchscripts = glob(__DIR__ . "/patches/*.sh");

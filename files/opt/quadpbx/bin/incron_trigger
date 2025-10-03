@@ -1,0 +1,57 @@
+#!/usr/bin/env php
+<?php
+
+openlog("quadpbx-incron", LOG_PID | LOG_PERROR, LOG_CRON);
+
+// Find out what file to handle
+if ($argv[1] == "--local") {
+        $request = $argv[2];
+        $filename = "/usr/local/asterisk/incron/$request";
+} else {
+        $request = $argv[1];
+        $filename = "/var/spool/asterisk/incron/$request";
+}
+
+syslog(LOG_INFO, "Filename is $filename");
+
+// Grab the contents of the file, if needed, and then delete it
+if (!file_exists($filename)) {
+	// Doesn't exist, probably testing
+	$body = "";
+} else {
+	$body = file_get_contents($filename);
+	unlink($filename);
+}
+
+// Old style hook was 'modulename_hookname'
+if (!preg_match('/^(\w+)_([\w-]+)$/', $request, $parts)) {
+        // New style is modulename.hookname.params
+        if (!preg_match('/^([\w_]+)\.([\w-]+)(?:\.(.+))?$/', $request, $parts)) {
+                syslog(LOG_ERR, "Invalid hook format");
+                exit;
+        }
+}
+
+$module = $parts[1];
+$hook = $parts[2];
+$params = "";
+$hookfile = "/var/www/html/admin/modules/$module/hooks/$hook";
+
+// Were there params?
+if (!empty($parts[3])) {
+        if ($parts[3] === "CONTENTS") {
+		// Magic string, use the body as params
+                $params = $body;
+        } else {
+                $params = $parts[3];
+        }
+}
+
+syslog(LOG_INFO, "Hook info: ".json_encode(["module" => $module, "hook" => $hook, "params" => $params]));
+$cmd = "$hookfile $params";
+syslog(LOG_INFO, "Command '$cmd'");
+
+exec($cmd, $output, $res);
+
+syslog(LOG_INFO, "Result: ".json_encode([$output, $res]));
+

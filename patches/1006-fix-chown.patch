@@ -1,5 +1,14 @@
 --- opt/quadpbx/modules/framework/current/amp_conf/htdocs/admin/libraries/Console/Chown.class.php.orig	2025-10-03 07:44:58.616583696 +1000
 +++ opt/quadpbx/modules/framework/current/amp_conf/htdocs/admin/libraries/Console/Chown.class.php	2025-10-02 17:24:55.140423211 +1000
+@@ -126,6 +126,8 @@
+ 			$this->modfiles['framework'][] = array('type' => 'rdir', 'path' => $ASTETCDIR, 'perms' => 0775, 'always' => true);
+ 			$this->modfiles['framework'][] = array('type' => 'file', 'path' => $ASTVARLIBDIR . '/.ssh/id_rsa', 'perms' => 0600);
+ 
++			$this->modfiles['framework'][] = array('type' => 'rdir', 'path' => $ASTVARLIBDIR . '/.npm', 'perms' => 0775);
++
+ 			// Logfiles.
+ 			$this->modfiles['framework'][] = array('type' => 'file', 'path' => $FPBXDBUGFILE, 'perms' => 0664);
+ 			$this->modfiles['framework'][] = array('type' => 'file', 'path' => $FPBX_LOG_FILE, 'perms' => 0664);
 @@ -204,7 +204,7 @@
  			$skipped 	= array();
  			$Tstart 	= strtotime("now");
@@ -8,4 +17,3 @@
 +				$bl 	= $this->systemSetRecursivePermissions($DIR, 0775, $ampowner, $ampgroup, 'rdir');
  				$skipped= array_merge($skipped,$bl);
  			}
- 

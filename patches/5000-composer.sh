@@ -17,6 +17,11 @@ if [ ! -d $LDIR/Composer ]; then
     echo "ERROR: $LDIR/Composer is not a directory"
     exit 9
 fi
+
+# NOTE WHEN UPDATING:
+# This is a pile of crap. Things are manually patched in this tarball:
+#   Composer/vendor/mtdowling/cron-expression/src/Cron/CronExpression.php - Fix not explict nullable on line 69
+
 rm -rf $LDIR/Composer
 echo "Replacing $LDIR/Composer"
 tar -C $LDIR -xf $TARBALL

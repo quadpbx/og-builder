@@ -3,4 +3,12 @@
 # Preinstall - make sure /opt/quadpbx/conf exists
 mkdir -p /opt/quadpbx/conf
 
+# Permissions on this are wrong
+mkdir -p /var/lib/asterisk/.npm
+chown asterisk:www-data /var/lib/asterisk/.npm
+chmod 775 /var/lib/asterisk/.npm
+
+mkdir -p /var/spool/asterisk/incron
+chown asterisk:www-data /var/spool/asterisk/incron
+chmod 770 /var/spool/asterisk/incron
 

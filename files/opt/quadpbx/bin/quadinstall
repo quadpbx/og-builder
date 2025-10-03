@@ -34,4 +34,6 @@ foreach ($optparams as $o) {
 $current = "/opt/quadpbx/modules/framework/current";
 chdir($current);
 print "$cmd\n";
-system($cmd);
+$retcode = 0;
+system($cmd, $retcode);
+print "Exited with $retcode\n";
