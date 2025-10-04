@@ -4,8 +4,7 @@ Architecture: all
 Section: comm
 Priority: optional
 Maintainer: Rob Thomas <xrobau@gmail.com>
-Pre-Depends: npm, nodejs ( >= 20 ), php__PHPVER__-cli, php__PHPVER__-mysql, php__PHPVER__-xml, php__PHPVER__-sqlite3, php__PHPVER__-yaml, php__PHPVER__-ldap, php__PHPVER__-curl, php__PHPVER__-mbstring, mariadb-client, mariadb-server, asterisk ( >= 22.5 ), libapache2-mod-php__PHPVER__, libicu-dev, icu-devtools, pkg-config
-Depends: apache2, sudo, postfix, rsync, incron, rsyslog, libsox-fmt-all, sox, mpg123, ffmpeg, lame, libavdevice61, libavcodec61, libavcodec-extra61, libresample1
+Pre-Depends: quadpbx-og-prep
 Homepage: https://quadpbx.com
 Source: quadpbx-builder
 Description: Bootstrap control file for QuadPBX OG

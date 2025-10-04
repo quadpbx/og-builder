@@ -9,9 +9,12 @@ $srcvers = "17.0";
 $baseurl = "https://mirror.freepbx.org";
 $xmlsrc = "$baseurl/all-" . $srcvers . ".xml";
 $stagingdir = __DIR__ . "/staging/$srcvers";
-$buildver = "2509.07-01";
-$buildroot = "/usr/local/data/quadpbx-deb/quadpbx-$buildver";
+$buildver = getenv("QBUILDVER");
+$buildroot = getenv("BUILDROOT") . "/quadpbx-$buildver";
 
+if (!$buildver) {
+    throw new \Exception("Use 'make build'");
+}
 $pkgdest = "$buildroot/opt/quadpbx/modules";
 $patchdest = "$buildroot/opt/quadpbx/patches";
 $webdest = "/var/www/html/quadpbx";
