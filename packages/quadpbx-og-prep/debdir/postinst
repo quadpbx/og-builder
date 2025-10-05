@@ -1,0 +1,46 @@
+#!/bin/bash
+
+echo "prep POSTINST Script here called $0"
+
+# FINE I GIVE UP, RUN APACHE AS ASTERISK (again, see preinst)
+if grep -q www-data /etc/apache2/envvars; then
+	echo "Changing apache runas"
+	sed -i 's/www-data/asterisk/g' /etc/apache2/envvars
+        touch /etc/apache2/.restartneeded
+fi
+
+chown -R asterisk:asterisk /var/run/apache2* /var/log/apache2* /var/lock/apache2*
+
+# Enable apache modules
+AMODS=rewrite
+for m in $AMODS; do
+	if [ ! -e /etc/apache2/mods-enabled/$m.load ]; then
+		echo Enabling apache module $m
+		touch /etc/apache2/.restartneeded
+		a2enmod $m
+	fi
+done
+
+set -x
+
+# Does the php config file need an update?
+NEWHASH=$(sha256sum /etc/php/8.4/mods-available/quadpbx.ini | cut -c1-64)
+if [ ! -e /etc/php/8.4/apache2/conf.d/90-quadpbx.ini ]; then
+	OLDHASH="missing"
+	phpenmod -v ALL -s ALL quadpbx
+else
+	OLDHASH=$(cat /opt/quadpbx/conf/.phpinihash 2>/dev/null)
+fi
+
+echo "$NEWHASH" > /opt/quadpbx/conf/.phpinihash
+
+if [ "$OLDHASH" != "$NEWHASH" ]; then
+	# It was changed
+	touch /etc/apache2/.restartneeded
+fi
+
+if [ -e /etc/apache2/.restartneeded ]; then
+        echo "/etc/apache2/.restartneeded exists, restarting"
+	systemctl restart apache2
+        rm -f /etc/apache2/.restartneeded
+fi

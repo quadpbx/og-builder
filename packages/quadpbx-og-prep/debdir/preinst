@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Preinstall - make sure /opt/quadpbx/conf exists
+mkdir -p /opt/quadpbx/conf
+
+# Permissions on this are wrong
+mkdir -p /var/lib/asterisk/.npm
+chown asterisk:www-data /var/lib/asterisk/.npm
+chmod 775 /var/lib/asterisk/.npm
+
+mkdir -p /var/spool/asterisk/incron
+chown asterisk:www-data /var/spool/asterisk/incron
+chmod 770 /var/spool/asterisk/incron
+
+# FINE I GIVE UP, RUN APACHE AS ASTERISK. This is in
+# preinst AND postinst to catch race conditions.
+if grep -q www-data /etc/apache2/envvars; then
+	echo "Changing apache runas"
+	sed -i 's/www-data/asterisk/g' /etc/apache2/envvars
+	# This is handled in postinst
+	touch /etc/apache2/.restartneeded
+fi
+
+# PHP Session directory is harcdoded in php quadpbx.ini
+mkdir -p /var/lib/php/sessions
+chmod 1733 /var/lib/php/sessions # Yes, this is correct - drwx-wx-wxt
+
+chown -R asterisk:asterisk /var/run/apache2* /var/log/apache2* /var/lock/apache2*
+

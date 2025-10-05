@@ -1,17 +1,16 @@
 #!/bin/bash
 
-echo "POSTINST Script here called $0"
-
-set -x
-
-# Check for pm2, should we install it?
-if [ ! -e /usr/local/bin/pm2 ]; then
-        echo "PM2 not installed, should it be?"
-fi
+echo "quadpbx-og postinst script triggered"
 
 cd /opt/quadpbx/bin
 /opt/quadpbx/bin/quadconf
-# Disable install for the moment
-#echo "Now run /opt/quadpbx/bin/quadinstall"
-/opt/quadpbx/bin/quadinstall
+
+# If there is a '/.noinstall' file, don't install
+if [ -e /.noinstall ]; then
+        echo "/.noinstall file exists, not running quadinstall"
+        echo "You can now run /opt/quadpbx/bin/quadinstall manually"
+else
+        echo "Running quadinstall - create the file /.noinstall to skip"
+        /opt/quadpbx/bin/quadinstall
+fi
 
