@@ -1,0 +1,15 @@
+{
+    "updatetype": "database",
+    "tablename": "freepbx_settings",
+    "tablekeys": [ "keyword", "value", "name", "level", "description", "type", "options", "defaultval", "readonly", "hidden", "category", "module", "emptyok", "sortorder" ],
+    "keyname": "keyword",
+    "data": {
+        "RSSFEEDS": { "defaultval": "https://quadpbx.com/feed/", "_changecols": { "value": "defaultval" } },
+        "DASHBOARD_FREEPBX_BRAND": { "defaultval": "QuadPBX-OG", "_changecols": { "value": "defaultval" } },
+        "BRAND_TITLE": { "defaultval": "QuadPBX Setup", "_changecols": { "value": "defaultval" } },
+        "BRAND_FREEPBX_ALT_FOOT": { "defaultval": "AltFoot", "_changecols": { "value": "defaultval" } },
+        "BRAND_FREEPBX_ALT_LEFT": { "defaultval": "AltLeft", "_changecols": { "value": "defaultval" } },
+        "BRAND_IMAGE_FREEPBX_LINK_FOOT": { "defaultval": "https://quadpbx.com", "_changecols": { "value": "defaultval" } },
+        "BRAND_IMAGE_SPONSOR_LINK_FOOT": { "defaultval": "https://aussievoip.com.au", "_changecols": { "value": "defaultval" } }
+    }
+}

@@ -1,0 +1,68 @@
+#!/usr/bin/env php
+<?php
+
+$conffile = "/opt/quadpbx/conf/quadpbx-conf.json";
+
+$conf = json_decode(file_get_contents($conffile), true);
+
+$dsn = "mysql:host=" . $conf["dbhost"];
+$pdo = new \PDO($dsn, $conf['dbuser'], $conf['dbpass'], [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
+$pdo->exec("use asterisk");
+
+$updates = glob("/opt/quadpbx/etc/*json");
+sort($updates);
+
+foreach ($updates as $j) {
+    $data = json_decode(file_get_contents($j), true);
+    $updatetype = $data['updatetype'] ?? "ERR";
+    if ($updatetype === "database") {
+        $tablekeys = $data['tablekeys'];
+        $keyword = $data['keyword'] ?? $tablekeys[0];
+        updateDatabase($pdo, $data['tablename'], $tablekeys, $keyword, $data['data']);
+        continue;
+    }
+}
+
+function updateDatabase(\PDO $pdo, string $tablename, array $tablekeys, string $keyword, array $data)
+{
+    print "Here I am with $tablename\n";
+    foreach ($data as $keyname => $row) {
+        print "$keyname is " . json_encode($row) . "\n";
+        $sql = "update $tablename set ";
+        $params = [];
+        foreach ($tablekeys as $k) {
+            if (!empty($row[$k])) {
+                $sql .= "$k=:$k,";
+                $params[$k] = $row[$k];
+            }
+        }
+        $sql = rtrim($sql, ",") . " where $keyword=:k";
+        $params["k"] = $keyname;
+        $p = $pdo->prepare($sql);
+        // This will throw if it fails
+        $p->execute($params);
+
+        // If it changed, update any changecols that have been marked to be updated
+        $changecount = $p->rowCount();
+
+        // Force an update
+        if (!empty($row['_forceupdate'])) {
+            $changecount = 99;
+        }
+        if ($changecount > 0) {
+            $changecols = $row['_changecols'] ?? [];
+            $updateparams = ["k" => $keyname];
+            if (!$changecols) {
+                continue;
+            }
+            $updates = "update $tablename set ";
+            foreach ($changecols as $dest => $src) {
+                $updates .= "`$dest`=`$src`,";
+            }
+            $sql = rtrim($updates, ",") . " where $keyword=:k";
+            print "Row changed, update is $sql\n";
+            $p = $pdo->prepare($sql);
+            $p->execute($updateparams);
+        }
+    }
+}

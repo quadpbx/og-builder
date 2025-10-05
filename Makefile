@@ -6,7 +6,7 @@ DEBDEST=$(REPOTOOLS)/incoming
 
 PHPVER=8.4
 
-QBUILDVER=2509.07-06
+QBUILDVER=2025.07-07
 
 PREPSRC=packages/quadpbx-og-prep
 PREPVER=$(shell awk '/Version: / { print $$2 }' $(PREPSRC)/debdir/control)
